@@ -1,0 +1,304 @@
+AWSTemplateFormatVersion: 2010-09-09
+#########################################################################################################################################
+########################### Run this template with the Name Production, as the remaining stacks depends on this name#####################
+#########################################################################################################################################
+Description: Template for Landing zone, with VPC and subnets (stacked)
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Network configuration
+        Parameters:
+        - VPCCIDR
+        - SecSubnetA
+        - SecSubnetB
+        - SecSubnetC
+        - PrivSubnetA
+        - PrivSubnetB
+        - PrivSubnetC
+        - PubSubnetA
+        - PubSubnetB
+        - PubSubnetC
+    ParameterLabels:
+      VPCCIDR:
+        default: Enter the CIDR block for the VPC, or leave it with the default 192.168.0.0/16
+      SecSubnetA:
+        default: Secure Subnet A CIDR Block         
+      SecSubnetB:
+        default: Secure Subnet B CIDR Block
+      SecSubnetC:
+        default: Secure Subnet C CIDR Block
+      PrivSubnetA:
+        default: Private Subnet A CIDR Block    
+      PrivSubnetB:
+        default: Private Subnet B CIDR Block
+      PrivSubnetC:
+        default: Private Subnet C CIDR Block 
+      PubSubnetA:
+        default: Public Subnet A CIDR Block   
+      PubSubnetB:
+        default: PUblic Subnet B CIDR Block
+      PubSubnetC:
+        default: Public Subnet C CIDR Block        
+        
+################################################# Parameters ####################################################################
+Parameters:
+################################################# CIDR Block for VPC#############################################################   
+  VPCCIDR:
+    Description: CIDR for the VPC
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.0.0/16
+################################################# CIDR Block Secure Subnets########################################################    
+  SecSubnetA:
+    Description: CIDR for the Secure subnet A 
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.0.0/20
+  SecSubnetB:
+    Description: CIDR for the Secure subnet B 
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.16.0/20
+  SecSubnetC:
+    Description: CIDR for the Secure subnet C 
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.32.0/20
+################################################# CIDR Block Private Subnets########################################################    
+  PrivSubnetA:
+    Description: CIDR for the Private subnet A 
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.48.0/20
+  PrivSubnetB:
+    Description: CIDR for the Private subnet B 
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.64.0/20
+  PrivSubnetC:
+    Description: CIDR for the Private subnet C 
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.80.0/20
+################################################# CIDR Block Public Subnets########################################################    
+  PubSubnetA:
+    Description: CIDR for the Public subnet A 
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.96.0/20
+  PubSubnetB:
+    Description: CIDR for the Public subnet B 
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.112.0/20
+  PubSubnetC:
+    Description: CIDR for the Public subnet C 
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 192.168.128.0/20
+################################################# DNS Support ########################################################    
+  DnsSupport:
+    AllowedValues:
+      - true
+      - false
+    Default: true
+    Description: >
+      Use AWS Route53 to provide DNS resolution for the VPC.
+    Type: String
+  DnsHostnames:
+    AllowedValues:
+      - true
+      - false
+    Default: false
+    Description: >
+      Enable AWS Route53 to provide DNS names to instances instead of just IP.
+    Type: String
+################################################# Virtual Private Network (VPC)####################################################
+Resources:
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsSupport: !Ref DnsSupport
+      EnableDnsHostnames: !Ref DnsHostnames
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName 
+################################################# Create Secure Subnet Resources ########################################################
+  SecureSubnetA:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: !Select [0, !GetAZs ] #Get the first AZ in the list
+        VpcId: !Ref myVPC
+        CidrBlock: !Ref SecSubnetA
+        Tags:
+          - Key: Name
+            #Value: !Sub ${AWS::StackName}Secure-A
+            Value: !Sub "${AWS::StackName}-SecureSubnetA"
+
+  SecureSubnetB:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: !Select [1, !GetAZs ] #Get the first AZ in the list
+        VpcId: !Ref myVPC
+        CidrBlock: !Ref SecSubnetB
+        Tags:
+          - Key: Name
+            #Value: !Sub ${AWS::StackName}Secure-B
+            Value: !Sub "${AWS::StackName}-SecureSubnetB"
+
+  SecureSubnetC:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: !Select [2, !GetAZs ] #Get the first AZ in the list
+        VpcId: !Ref myVPC
+        CidrBlock: !Ref SecSubnetC
+        Tags:
+          - Key: Name
+            #Value: !Sub ${AWS::StackName}Secure-C
+            Value: !Sub "${AWS::StackName}-SecureSubnetC"
+################################################# Create Private Subnet Resources ########################################################            
+  PrivateSubnetA:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: !Select [0, !GetAZs ] #Get the first AZ in the list
+        VpcId: !Ref myVPC
+        CidrBlock: !Ref PrivSubnetA
+        Tags:
+          - Key: Name
+            #Value: !Sub ${AWS::StackName}Secure-A
+            Value: !Sub "${AWS::StackName}-SecureSubnetA"
+
+  PrivateSubnetB:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: !Select [1, !GetAZs ] #Get the first AZ in the list
+        VpcId: !Ref myVPC
+        CidrBlock: !Ref PrivSubnetB
+        Tags:
+          - Key: Name
+            #Value: !Sub ${AWS::StackName}Secure-B
+            Value: !Sub "${AWS::StackName}-SecureSubnetB"
+
+  PrivateSubnetC:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: !Select [2, !GetAZs ] #Get the first AZ in the list
+        VpcId: !Ref myVPC
+        CidrBlock: !Ref PrivSubnetC
+        Tags:
+          - Key: Name
+            #Value: !Sub ${AWS::StackName}Secure-C
+            Value: !Sub "${AWS::StackName}-SecureSubnetC"
+################################################# Create Public Subnet Resources ########################################################            
+  PublicSubnetA:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: !Select [0, !GetAZs ] #Get the first AZ in the list
+        VpcId: !Ref myVPC
+        CidrBlock: !Ref PubSubnetA
+        Tags:
+          - Key: Name
+            #Value: !Sub ${AWS::StackName}Secure-A
+            Value: !Sub "${AWS::StackName}-PublicSubnetA"
+
+  PublicSubnetB:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: !Select [1, !GetAZs ] #Get the first AZ in the list
+        VpcId: !Ref myVPC
+        CidrBlock: !Ref PubSubnetB
+        Tags:
+          - Key: Name
+            #Value: !Sub ${AWS::StackName}Secure-B
+            Value: !Sub "${AWS::StackName}-PublicSubnetB"
+
+  PublicSubnetC:
+      Type: AWS::EC2::Subnet
+      Properties:
+        AvailabilityZone: !Select [2, !GetAZs ] #Get the first AZ in the list
+        VpcId: !Ref myVPC
+        CidrBlock: !Ref PubSubnetC
+        Tags:
+          - Key: Name
+            #Value: !Sub ${AWS::StackName}Secure-C
+            Value: !Sub "${AWS::StackName}-PublicSubnetC"            
+            
+Outputs:
+  myVPC:
+    Description: Outputs the VPC ID
+    Value: !Ref myVPC
+    Export:
+      Name: !Sub "${AWS::StackName}"
+
+  VpcCidr:
+    Description: Outpus the Cidr for the VPC
+    Value: !GetAtt myVPC.CidrBlock
+    Export:
+      Name: !Sub "${AWS::StackName}-CidrBlock"     
+
+  SecureSubnetA:
+    Description: Outputs the ID for the Secure Subnet A
+    Value: !Ref SecureSubnetA
+    Export: 
+      Name: !Sub "${AWS::StackName}-SecureSubnetA"
+ 
+  SecureSubnetB:
+    Description: Outputs the ID for the Secure Subnet B
+    Value: !Ref SecureSubnetB
+    Export: 
+      Name: !Sub "${AWS::StackName}-SecureSubnetB"
+ 
+  SecureSubnetC:
+    Description: Outputs the ID for the Secure Subnet C
+    Value: !Ref SecureSubnetC
+    Export: 
+      Name: !Sub "${AWS::StackName}-SecureSubnetC"
+ 
+  PrivateSubnetA:
+    Description: Outputs the ID for the Private Subnet A
+    Value: !Ref PrivateSubnetA
+    Export: 
+      Name: !Sub "${AWS::StackName}-PrivateSubnetA"
+ 
+  PrivateSubnetB:
+    Description: Outputs the ID for the Private Subnet B
+    Value: !Ref PrivateSubnetB
+    Export: 
+      Name: !Sub "${AWS::StackName}-PrivateSubnetB"
+ 
+  PrivateSubnetC:
+    Description: Outputs the ID for the Private Subnet C
+    Value: !Ref PrivateSubnetC
+    Export: 
+      Name: !Sub "${AWS::StackName}-PrivateSubnetC"
+ 
+  PublicSubnetA:
+    Description: Outputs the ID for the Public Subnet A
+    Value: !Ref PublicSubnetA
+    Export: 
+      Name: !Sub "${AWS::StackName}-PublicSubnetA"
+ 
+  PublicSubnetB:
+    Description: Outputs the ID for the Public Subnet B
+    Value: !Ref PublicSubnetB
+    Export: 
+      Name: !Sub "${AWS::StackName}-PublicSubnetB"
+ 
+  PublicSubnetC:
+    Description: Outputs the ID for the Public Subnet C
+    Value: !Ref PublicSubnetC
+    Export: 
+      Name: !Sub "${AWS::StackName}-PublicSubnetC"      
