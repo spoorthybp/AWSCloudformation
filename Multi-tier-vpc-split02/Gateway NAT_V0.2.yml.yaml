@@ -1,0 +1,153 @@
+AWSTemplateFormatVersion: 2010-09-09
+#### This template creates the Internet gateway, NAT gateways for the production VPC, 
+################# **********************IMPORTANT*********************************** ############################################
+########   When running this template use the stack name as Gateway, the route table Stack will depend on this one. 
+##################################################################################################################################
+Conditions:
+        NATGatewayA: !Equals
+          - !Ref EnableNATGatewayA
+          - 'true'
+        NATGatewayB: !Equals
+          - !Ref EnableNATGatewayB
+          - 'true'
+        NATGatewayC: !Equals
+          - !Ref EnableNATGatewayC
+          - 'true'
+
+Parameters:
+#################################################################################################################################
+##########################################      Enable/Disable Subnets     ######################################################
+#################################################################################################################################   
+  EnableNATGatewayA:
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'true'
+    Description: "Do you want to deploy NAT Gateway A, Default is yes"
+    Type: String
+
+  EnableNATGatewayB:
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'true'
+    Description: "Do you want to deploy NAT Gateway A, Default is yes"
+    Type: String  
+
+  EnableNATGatewayC:
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'true'
+    Description: "Do you want to deploy NAT Gateway A, Default is yes"
+    Type: String  
+
+Resources: 
+##################################### Internet Gateway ##########################################################################
+  Prodigw:
+   Type: AWS::EC2::InternetGateway
+   Properties:
+     Tags:
+       - Key: Name
+         Value: Production-VPC-InternetGateway
+       - Key: VpcId
+         Value: !ImportValue Production
+  AttachInternetGateway:
+   Type: AWS::EC2::VPCGatewayAttachment
+   Properties:
+     InternetGatewayId: !Ref Prodigw
+     VpcId: !ImportValue "Production"
+
+###################################################################################################################################
+#                                            NAT Gateways for the Public Subnets
+############################################# NAT Gateway for Public Subnet A ######################################################      
+  NATGatewayA:
+   Condition: NATGatewayA
+   Type: AWS::EC2::NatGateway
+   Properties:
+      AllocationId: !GetAtt ElasticIPA.AllocationId
+      SubnetId: !ImportValue Production-PublicSubnetA
+  ElasticIPA:
+   DependsOn: AttachInternetGateway
+   Type: AWS::EC2::EIP
+   Properties:
+      Domain: vpc
+############################################# NAT Gateway for Public Subnet B ######################################################
+  NATGatewayB:
+   Condition: NATGatewayB
+   Type: AWS::EC2::NatGateway
+   Properties:
+      AllocationId: !GetAtt ElasticIPB.AllocationId
+      SubnetId: !ImportValue Production-PublicSubnetB
+  ElasticIPB:
+   DependsOn: AttachInternetGateway
+   Type: AWS::EC2::EIP
+   Properties:
+      Domain: vpc
+############################################# NAT Gateway for Public Subnet C ######################################################      
+  NATGatewayC:
+   Condition: NATGatewayC  
+   Type: AWS::EC2::NatGateway
+   Properties:
+      AllocationId: !GetAtt ElasticIPC.AllocationId
+      SubnetId: !ImportValue Production-PublicSubnetC
+  ElasticIPC:
+   DependsOn: AttachInternetGateway
+   Type: AWS::EC2::EIP
+   Properties:
+      Domain: vpc
+
+Outputs:
+  Prodigw:
+   Description: Outputs the Internet Gateway information
+   Value: !Ref Prodigw
+   Export:
+    Name: !Sub "${AWS::StackName}-Prodigw"
+  
+  AttachInternetGateway:
+   Description: Outputs the Internet Gateway information
+   Value: !Ref AttachInternetGateway
+   Export:
+    Name: !Sub "${AWS::StackName}-AttachInternetGateway"  
+
+  NATGatewayA:
+   Condition: NATGatewayA
+   Description: Outputs the NAT Gateway for Public Subnet A 
+   Value: !Ref NATGatewayA
+   Export:
+    Name: !Sub "${AWS::StackName}-NATGatewayA"
+ 
+  NATGatewayB:
+   Condition: NATGatewayB
+   Description: Outputs the NAT Gateway for Public Subnet B 
+   Value: !Ref NATGatewayB
+   Export:
+    Name: !Sub "${AWS::StackName}-NATGatewayB" 
+
+  NATGatewayC:
+   Condition: NATGatewayC
+   Description: Outputs the NAT Gateway for Public Subnet C 
+   Value: !Ref NATGatewayC
+   Export:
+    Name: !Sub "${AWS::StackName}-NATGatewayC"
+
+  ElasticIPA:
+   Condition: NATGatewayA
+   Description: Outputs the Elastic IP for Production Public Subnet A 
+   Value: !Ref ElasticIPA
+   Export:
+    Name: !Sub "${AWS::StackName}-ElasticIP-Prod-Public-A"
+
+  ElasticIPB:
+   Condition: NATGatewayB
+   Description: Outputs the Elastic IP for Production Public Subnet B 
+   Value: !Ref ElasticIPB
+   Export:
+    Name: !Sub "${AWS::StackName}-ElasticIP-Prod-Public-B"
+
+  ElasticIPC:
+   Condition: NATGatewayC
+   Description: Outputs the Elastic IP for Production Public Subnet C 
+   Value: !Ref ElasticIPC
+   Export:
+    Name: !Sub "${AWS::StackName}-ElasticIP-Prod-Public-C"              

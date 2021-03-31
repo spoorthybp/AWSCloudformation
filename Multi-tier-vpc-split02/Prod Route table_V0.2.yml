@@ -1,0 +1,321 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Conditions:
+        PublicRouteA: !Equals
+          - !Ref EnablePublicRouteA
+          - 'true'
+        PublicRouteB: !Equals
+          - !Ref EnablePublicRouteB
+          - 'true'
+        PublicRouteC: !Equals
+          - !Ref EnablePublicRouteC
+          - 'true'
+        PrivateRouteA: !Equals
+          - !Ref EnablePrivateRouteA
+          - 'true'
+        PrivateRouteB: !Equals
+          - !Ref EnablePrivateRouteB
+          - 'true'
+        PrivateRouteC: !Equals
+          - !Ref EnablePrivateRouteC
+          - 'true'
+        SecureRouteA: !Equals
+          - !Ref EnableSecureRouteA
+          - 'true'
+        SecureRouteB: !Equals
+          - !Ref EnableSecureRouteB
+          - 'true'
+        SecureRouteC: !Equals
+          - !Ref EnableSecureRouteC
+          - 'true'                    
+
+Parameters:
+    EnablePublicRouteA:
+     AllowedValues:
+      - 'true'
+      - 'false'
+     Default: 'true'
+     Description: "Do you want to deploy Routes for Publice subnet A, Default is yes"
+     Type: String
+    
+    EnablePublicRouteB:
+     AllowedValues:
+      - 'true'
+      - 'false'
+     Default: 'true'
+     Description: "Do you want to deploy Routes for Publice subnet B, Default is yes"
+     Type: String
+    
+    EnablePublicRouteC:
+     AllowedValues:
+      - 'true'
+      - 'false'
+     Default: 'true'
+     Description: "Do you want to deploy Routes for Publice subnet C, Default is yes"
+     Type: String
+    
+    EnablePrivateRouteA:
+     AllowedValues:
+      - 'true'
+      - 'false'
+     Default: 'true'
+     Description: "Do you want to deploy Routes for Private subnet A, Default is yes"
+     Type: String
+    
+    EnablePrivateRouteB:
+     AllowedValues:
+      - 'true'
+      - 'false'
+     Default: 'true'
+     Description: "Do you want to deploy Routes for Private subnet B, Default is yes"
+     Type: String
+    
+    EnablePrivateRouteC:
+     AllowedValues:
+      - 'true'
+      - 'false'
+     Default: 'true'
+     Description: "Do you want to deploy Routes for Private subnet C, Default is yes"
+     Type: String        
+    
+    EnableSecureRouteA:
+     AllowedValues:
+      - 'true'
+      - 'false'
+     Default: 'true'
+     Description: "Do you want to deploy Routes for Secure subnet A, Default is yes"
+     Type: String
+    
+    EnableSecureRouteB:
+     AllowedValues:
+      - 'true'
+      - 'false'
+     Default: 'true'
+     Description: "Do you want to deploy Routes for Secure subnet B, Default is yes"
+     Type: String
+    
+    EnableSecureRouteC:
+     AllowedValues:
+      - 'true'
+      - 'false'
+     Default: 'true'
+     Description: "Do you want to deploy Routes for Secure subnet C, Default is yes"
+     Type: String
+
+Resources:
+
+##################################################################################################################################
+# This template creates the route table for the public, private and secure subnets for the production VPC
+#                       Route table for the public subnets
+##################################################################################################################################
+############################################# Route table for Public Subnet A ######################################################
+
+ PublicSubnetARouteTable:
+   Condition: PublicRouteA     
+   Type: AWS::EC2::RouteTable
+   Properties:
+    VpcId: !ImportValue Production
+    Tags:
+      - Key: Name
+        Value: Production-VPC-PublicSubnet-A-Routetable
+ PublicSubnetAAssoc:
+   Condition: PublicRouteA 
+   Type: AWS::EC2::SubnetRouteTableAssociation
+   Properties:
+    SubnetId: !ImportValue Production-PublicSubnetA
+    RouteTableId: !Ref PublicSubnetARouteTable
+ PublicSubnetARoute:
+   Condition: PublicRouteA
+   Type: AWS::EC2::Route
+   Properties:
+    RouteTableId: !Ref PublicSubnetARouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    GatewayId: !ImportValue "Gateway-Prodigw"
+
+############################################# Route table for Public Subnet B ######################################################
+ PublicSubnetBRouteTable:
+   Condition: PublicRouteB
+   Type: AWS::EC2::RouteTable
+   Properties:
+    VpcId: !ImportValue Production
+    Tags:
+      - Key: Name
+        Value: Production-VPC-PublicSubnet-B-Routetable
+ PublicSubnetBAssoc:
+   Condition: PublicRouteB
+   Type: AWS::EC2::SubnetRouteTableAssociation
+   Properties:
+    SubnetId: !ImportValue Production-PublicSubnetB
+    RouteTableId: !Ref PublicSubnetBRouteTable
+ PublicSubnetBRoute:
+   Condition: PublicRouteB
+   Type: AWS::EC2::Route
+   Properties:
+    RouteTableId: !Ref PublicSubnetBRouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    GatewayId: !ImportValue "Gateway-Prodigw"
+############################################# Route table for Public Subnet C ######################################################
+ PublicSubnetCRouteTable:
+   Condition: PublicRouteC 
+   Type: AWS::EC2::RouteTable
+   Properties:
+    VpcId: !ImportValue Production
+    Tags:
+      - Key: Name
+        Value: Production-VPC-PublicSubnet-C-Routetable
+ PublicSubnetCAssoc:
+   Condition: PublicRouteC 
+   Type: AWS::EC2::SubnetRouteTableAssociation
+   Properties:
+    SubnetId: !ImportValue Production-PublicSubnetC
+    RouteTableId: !Ref PublicSubnetCRouteTable
+ PublicSubnetCRoute:
+   Condition: PublicRouteC 
+   Type: AWS::EC2::Route
+   Properties:
+    RouteTableId: !Ref PublicSubnetCRouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    GatewayId: !ImportValue "Gateway-Prodigw"
+
+
+##################################################################################################################################
+# Route table for the Private subnets
+##################################################################################################################################
+############################################# Route table for Private Subnet A ######################################################
+ PrivateSubnetARouteTable:
+   Condition: PrivateRouteA
+   Type: AWS::EC2::RouteTable
+   Properties:
+    VpcId: !ImportValue Production
+    Tags:
+      - Key: Name
+        Value: Production-PrivateSubnet-A-Routetable
+ PrivateSubnetAAssoc:
+   Condition: PrivateRouteA
+   Type: AWS::EC2::SubnetRouteTableAssociation
+   Properties:
+    SubnetId: !ImportValue Production-PrivateSubnetA
+    RouteTableId: !Ref PrivateSubnetARouteTable
+ PrivateSubnetARoute:
+   Condition: PrivateRouteA
+   Type: AWS::EC2::Route
+   Properties:
+    RouteTableId: !Ref PrivateSubnetARouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    NatGatewayId: !ImportValue "Gateway-NATGatewayA"
+
+############################################# Route table for Private Subnet B ######################################################
+ PrivateSubnetBRouteTable:
+   Condition: PrivateRouteB
+   Type: AWS::EC2::RouteTable
+   Properties:
+    VpcId: !ImportValue Production
+    Tags:
+      - Key: Name
+        Value: Production-VPC-PrivateSubnet-B-Routetable
+ PrivateSubnetBAssoc:
+   Condition: PrivateRouteB
+   Type: AWS::EC2::SubnetRouteTableAssociation
+   Properties:
+    SubnetId: !ImportValue Production-PrivateSubnetB
+    RouteTableId: !Ref PrivateSubnetBRouteTable
+ PrivateSubnetBRoute:
+   Condition: PrivateRouteB
+   Type: AWS::EC2::Route
+   Properties:
+    RouteTableId: !Ref PrivateSubnetBRouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    NatGatewayId: !ImportValue "Gateway-NATGatewayB"
+############################################# Route table for Private Subnet C ######################################################
+ PrivateSubnetCRouteTable:
+   Condition: PrivateRouteC
+   Type: AWS::EC2::RouteTable
+   Properties:
+    VpcId: !ImportValue Production
+    Tags:
+      - Key: Name
+        Value: Production-VPC-PrivateSubnet-C-Routetable
+ PrivateSubnetCAssoc:
+   Condition: PrivateRouteC
+   Type: AWS::EC2::SubnetRouteTableAssociation
+   Properties:
+    SubnetId: !ImportValue Production-PrivateSubnetC
+    RouteTableId: !Ref PrivateSubnetCRouteTable
+ PrivateSubnetCRoute:
+   Condition: PrivateRouteC
+   Type: AWS::EC2::Route
+   Properties:
+    RouteTableId: !Ref PrivateSubnetCRouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    NatGatewayId: !ImportValue "Gateway-NATGatewayC"
+
+##################################################################################################################################
+# Route table for the Secure subnets
+##################################################################################################################################
+############################################# Route table for Secure Subnet A ######################################################
+ SecureSubnetARouteTable:
+   Condition: SecureRouteA
+   Type: AWS::EC2::RouteTable
+   Properties:
+    VpcId: !ImportValue Production
+    Tags:
+      - Key: Name
+        Value: Production-SecureSubnet-A-Routetable
+ SecureSubnetAAssoc:
+   Condition: SecureRouteA
+   Type: AWS::EC2::SubnetRouteTableAssociation
+   Properties:
+    SubnetId: !ImportValue Production-SecureSubnetA
+    RouteTableId: !Ref SecureSubnetARouteTable
+ SecureSubnetARoute:
+   Condition: SecureRouteA
+   Type: AWS::EC2::Route
+   Properties:
+    RouteTableId: !Ref SecureSubnetARouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    NatGatewayId: !ImportValue "Gateway-NATGatewayA"
+
+############################################# Route table for Secure Subnet B ######################################################
+ SecureSubnetBRouteTable:
+   Condition: SecureRouteB
+   Type: AWS::EC2::RouteTable
+   Properties:
+    VpcId: !ImportValue Production
+    Tags:
+      - Key: Name
+        Value: Production-VPC-SecureSubnet-B-Routetable
+ SecureSubnetBAssoc:
+   Condition: SecureRouteB
+   Type: AWS::EC2::SubnetRouteTableAssociation
+   Properties:
+    SubnetId: !ImportValue Production-SecureSubnetB
+    RouteTableId: !Ref SecureSubnetBRouteTable
+ SecureSubnetBRoute:
+   Condition: SecureRouteB
+   Type: AWS::EC2::Route
+   Properties:
+    RouteTableId: !Ref SecureSubnetBRouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    NatGatewayId: !ImportValue "Gateway-NATGatewayB"
+############################################# Route table for Secure Subnet C ######################################################
+ SecureSubnetCRouteTable:
+   Condition: SecureRouteC
+   Type: AWS::EC2::RouteTable
+   Properties:
+    VpcId: !ImportValue Production
+    Tags:
+      - Key: Name
+        Value: Production-VPC-SecureSubnet-C-Routetable
+ SecureSubnetCAssoc:
+   Condition: SecureRouteC
+   Type: AWS::EC2::SubnetRouteTableAssociation
+   Properties:
+    SubnetId: !ImportValue Production-SecureSubnetC
+    RouteTableId: !Ref SecureSubnetCRouteTable
+ SecureSubnetCRoute:
+   Condition: SecureRouteC
+   Type: AWS::EC2::Route
+   Properties:
+    RouteTableId: !Ref SecureSubnetCRouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    NatGatewayId: !ImportValue "Gateway-NATGatewayC"
